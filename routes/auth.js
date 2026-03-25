@@ -58,4 +58,22 @@ router.post('/change-password', requireAuth, async (req, res) => {
   }
 });
 
+// TEMP: create admin (remove later)
+router.post('/create-admin', async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+
+    const exists = await Admin.findOne({ email });
+    if (exists) {
+      return res.json({ message: "Admin already exists" });
+    }
+
+    const admin = await Admin.create({ name, email, password });
+
+    res.json({ message: "Admin created successfully", admin });
+  } catch (err) {
+    res.status(500).json({ error: "Error creating admin" });
+  }
+});
+
 module.exports = router;
