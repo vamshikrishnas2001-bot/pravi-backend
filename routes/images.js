@@ -1,6 +1,6 @@
 const router = require('express').Router();
 const Site = require('../models/SiteContent');
-const auth   = require('../middleware/auth');
+const auth = require('../middleware/requireAuth');
 
 // POST /api/images/upload  — admin only
 // Body: { section, key, image: 'data:image/...;base64,...' }
