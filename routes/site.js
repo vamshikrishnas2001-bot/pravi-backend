@@ -1,7 +1,8 @@
 const router = require('express').Router();
 const Site   = require('../models/SiteContent');
-const auth   = require('../middleware/auth');
+const auth   = require('../middleware/requireAuth'); // make sure filename matches
 
+// GET all sections → returns { branding: {}, hero: {}, ... }
 router.get('/', async (req, res) => {
   try {
     const sections = await Site.find();
@@ -13,6 +14,12 @@ router.get('/', async (req, res) => {
   }
 });
 
+// POST /publish — MUST be before /:section to avoid conflict
+router.post('/publish', auth, async (req, res) => {
+  res.json({ message: 'Published', timestamp: new Date().toISOString() });
+});
+
+// GET one section
 router.get('/:section', async (req, res) => {
   try {
     const doc = await Site.findOne({ section: req.params.section });
@@ -23,6 +30,7 @@ router.get('/:section', async (req, res) => {
   }
 });
 
+// PUT (save/update) one section — used by admin panel
 router.put('/:section', auth, async (req, res) => {
   try {
     const doc = await Site.findOneAndUpdate(
@@ -34,10 +42,6 @@ router.put('/:section', auth, async (req, res) => {
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
-});
-
-router.post('/publish', auth, async (req, res) => {
-  res.json({ message: 'Published', timestamp: new Date().toISOString() });
 });
 
 module.exports = router;
