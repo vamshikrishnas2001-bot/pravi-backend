@@ -6,9 +6,34 @@ const auth   = require('../middleware/requireAuth'); // make sure filename match
 router.get('/', async (req, res) => {
   try {
     const sections = await Site.find();
+
     const result = {};
-    sections.forEach(s => { result[s.section] = s.data; });
-    res.json(result);
+    sections.forEach(s => {
+      result[s.section] = s.data || {};
+    });
+
+    // ✅ DEFAULT STRUCTURE (VERY IMPORTANT)
+    const defaults = {
+      branding: {},
+      hero: {},
+      about: {},
+      stats: {},
+      contact: {},
+      map: {},
+      whatsapp: {},
+      clients: {},
+      testimonials: {},
+      products: {},
+      facility: {},
+      gallery: {},
+      beforeafter: {}
+    };
+
+    // ✅ MERGE DEFAULTS + DB DATA
+    const finalResult = { ...defaults, ...result };
+
+    res.json(finalResult);
+
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
