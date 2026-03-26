@@ -12,7 +12,6 @@ router.get('/', async (req, res) => {
       result[s.section] = s.data || {};
     });
 
-    // ✅ DEFAULT STRUCTURE (VERY IMPORTANT)
     const defaults = {
       branding: {},
       hero: {},
@@ -29,13 +28,10 @@ router.get('/', async (req, res) => {
       beforeafter: {}
     };
 
-    // ✅ MERGE DEFAULTS + DB DATA
-    const finalResult = { ...defaults, ...result };
-
-    res.json(finalResult);
+    res.json({ ...defaults, ...result });
 
   } catch (err) {
-    res.status(500).json({ message: 'Server error', error: err.message });
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
