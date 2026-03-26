@@ -1,13 +1,27 @@
-const jwt = require('jsonwebtoken');
+const router = require('express').Router();
+const bcrypt = require('bcryptjs');
+const jwt    = require('jsonwebtoken');
+const Admin  = require('../models/Admin');
 
-module.exports = function (req, res, next) {
-  const auth = req.headers.authorization;
-  if (!auth || !auth.startsWith('Bearer '))
-    return res.status(401).json({ message: 'No token provided' });
+// POST /api/auth/login
+router.post('/login', async (req, res) => {
   try {
-    req.user = jwt.verify(auth.split(' ')[1], process.env.JWT_SECRET);
-    next();
-  } catch {
-    res.status(401).json({ message: 'Invalid or expired token' });
+    const { email, password } = req.body;
+    const admin = await Admin.findOne({ email });
+    if (!admin) return res.status(401).json({ message: 'Invalid credentials' });
+
+    const match = await bcrypt.compare(password, admin.password);
+    if (!match) return res.status(401).json({ message: 'Invalid credentials' });
+
+    const token = jwt.sign(
+      { id: admin._id, email: admin.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+    res.json({ token, name: admin.name, email: admin.email });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
-};
+});
+
+module.exports = router;
