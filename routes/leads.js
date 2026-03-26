@@ -67,6 +67,17 @@ router.get('/export', requireAuth, async (req, res) => {
   }
 });
 
+// GET /api/leads/stats
+router.get('/stats', requireAuth, async (req, res) => {
+  try {
+    const total    = await Lead.countDocuments({});
+    const newCount = await Lead.countDocuments({ status: 'New' });
+    res.json({ total, newCount });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
 // GET /api/leads/:id
 router.get('/:id', requireAuth, async (req, res) => {
   try {
