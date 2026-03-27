@@ -24,6 +24,7 @@ const router = require('express').Router();
 const bcrypt = require('bcryptjs');
 const jwt    = require('jsonwebtoken');
 const Admin  = require('../models/Admin');
+const requireAuth = require('../middleware/requireAuth');
 
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
