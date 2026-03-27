@@ -1,30 +1,8 @@
-// ── SECURITY: Verify auth on every page load ──────────────────
-(async function protectPage() {
-  const token = getToken();
-  if (!token) {
-    window.location.replace('admin-login.html');
-    return;
-  }
-
-  // Verify token with backend
-  try {
-    const res = await fetch(API + '/auth/verify', {
-      headers: { 'Authorization': 'Bearer ' + token }
-    });
-    if (!res.ok) {
-      localStorage.removeItem('token');
-      window.location.replace('admin-login.html');
-    }
-  } catch (e) {
-    // If backend is down, fall back to token presence check only
-    console.warn('Could not verify token with server');
-  }
-})();
-const router = require('express').Router();
-const bcrypt = require('bcryptjs');
-const jwt    = require('jsonwebtoken');
-const Admin  = require('../models/Admin');
-const requireAuth = require('../middleware/requireAuth');
+const router      = require('express').Router();
+const bcrypt      = require('bcryptjs');
+const jwt         = require('jsonwebtoken');
+const Admin       = require('../models/Admin');
+const requireAuth = require('../middleware/requireAuth'); // ✅ added
 
 // POST /api/auth/login
 router.post('/login', async (req, res) => {
@@ -46,8 +24,9 @@ router.post('/login', async (req, res) => {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
-// GET /api/auth/verify  ← ADD THIS BLOCK
-router.get('/verify', requireAuth, (req, res) => {
+
+// GET /api/auth/verify
+router.get('/verify', requireAuth, (req, res) => { // ✅ requireAuth now defined
   res.json({ valid: true, admin: req.admin });
 });
 
