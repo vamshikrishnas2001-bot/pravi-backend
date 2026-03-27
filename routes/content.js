@@ -20,13 +20,6 @@ router.get('/', async (req, res) => {
 router.put('/', requireAuth, async (req, res) => {
   try {
     const data = req.body;
-
-    // Sanitise about images — remove deleted markers on save
-    if (data.about && data.about.images) {
-      if (data.about.images.img1 === '__deleted__') data.about.images.img1 = null;
-      if (data.about.images.img2 === '__deleted__') data.about.images.img2 = null;
-    }
-
     await SiteContent.findOneAndUpdate(
       { key: 'site' },
       { key: 'site', data },
@@ -53,16 +46,6 @@ function getDefaults() {
       description: 'Transforming spaces with cutting-edge lighting design. From architectural to decorative — we illuminate your world.',
       btnPrimary: 'Explore Products',
       btnSecondary: 'Get a Quote',
-    },
-    about: {
-      eyebrow: 'Why Choose Us',
-      titleLine1: 'ILLUMINATE',
-      titleLine2Accent: 'YOUR SPACES',
-      description: 'We specialize in bespoke lighting solutions that blend form and function.',
-      // Images stored as base64 data URLs in MongoDB
-      // img1 = Large portrait (1:2, recommended 500×1000px)
-      // img2 = Small square  (1:1, recommended 500×500px)
-      images: { img1: null, img2: null }
     },
     stats: {
       s1: { num: 500, suffix: '+', label: 'Projects Done' },
