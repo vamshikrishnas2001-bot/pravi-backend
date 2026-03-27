@@ -19,10 +19,10 @@ router.post('/login', async (req, res) => {
       { expiresIn: '7d' }
     );
    // 🍪 SET COOKIE (IMPORTANT)
-res.cookie("token", token, {
-  httpOnly: true,
-  secure: true,       // required for Render HTTPS
-  sameSite: "None"    // required for GitHub + Render
+res.json({ 
+  token, 
+  name: admin.name, 
+  email: admin.email 
 });
 
 // send response
