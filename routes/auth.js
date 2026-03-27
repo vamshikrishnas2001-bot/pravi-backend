@@ -18,7 +18,15 @@ router.post('/login', async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
-    res.json({ token, name: admin.name, email: admin.email });
+   // 🍪 SET COOKIE (IMPORTANT)
+res.cookie("token", token, {
+  httpOnly: true,
+  secure: true,       // required for Render HTTPS
+  sameSite: "None"    // required for GitHub + Render
+});
+
+// send response
+res.json({ success: true, name: admin.name, email: admin.email });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }
