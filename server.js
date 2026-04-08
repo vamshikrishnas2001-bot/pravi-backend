@@ -7,7 +7,14 @@ dotenv.config();
 
 const app = express();
 
-// Middleware
+
+// ✅ 1. FAST HEALTH CHECK (VERY IMPORTANT)
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
+
+// ✅ 2. MIDDLEWARE
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -15,32 +22,32 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '10mb' }));
 
-// Routes
+
+// ✅ 3. ROOT ROUTE
+app.get('/', (req, res) => {
+  res.json({ status: 'Pravi Backend OK' });
+});
+
+
+// ✅ 4. API ROUTES
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/leads', require('./routes/leads'));
 app.use('/api/site', require('./routes/site'));
 app.use('/api/images', require('./routes/images'));
 
-// Test routes
-app.get('/', (req, res) => {
-  res.json({ status: 'Pravi Backend OK' });
-});
 
-app.get('/health', (req, res) => {
-  res.send('OK');
-});
-
-// PORT
+// ✅ 5. START SERVER IMMEDIATELY (CRITICAL FIX)
 const PORT = process.env.PORT || 5000;
 
-// ✅ Connect DB FIRST, then start server
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+});
+
+
+// ✅ 6. CONNECT MONGODB IN BACKGROUND (NON-BLOCKING)
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
     console.log('✅ MongoDB connected');
-
-    app.listen(PORT, "0.0.0.0", () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-    });
   })
   .catch(err => {
     console.error('❌ MongoDB error:', err);
