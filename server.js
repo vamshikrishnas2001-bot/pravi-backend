@@ -8,7 +8,7 @@ dotenv.config();
 const app = express();
 
 
-// ✅ 1. FAST HEALTH CHECK (VERY IMPORTANT)
+// ✅ 1. FAST HEALTH CHECK (never fails)
 app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
@@ -29,14 +29,21 @@ app.get('/', (req, res) => {
 });
 
 
-// ✅ 4. API ROUTES
+// ✅ 4. ROUTES (keep as is)
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/leads', require('./routes/leads'));
 app.use('/api/site', require('./routes/site'));
 app.use('/api/images', require('./routes/images'));
 
 
-// ✅ 5. START SERVER IMMEDIATELY (CRITICAL FIX)
+// ✅ 5. EXPRESS ERROR HANDLER (prevents crash)
+app.use((err, req, res, next) => {
+  console.error('❌ Express Error:', err);
+  res.status(500).send('Server Error');
+});
+
+
+// ✅ 6. START SERVER IMMEDIATELY
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, "0.0.0.0", () => {
@@ -44,11 +51,23 @@ app.listen(PORT, "0.0.0.0", () => {
 });
 
 
-// ✅ 6. CONNECT MONGODB IN BACKGROUND (NON-BLOCKING)
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log('✅ MongoDB connected');
-  })
-  .catch(err => {
-    console.error('❌ MongoDB error:', err);
-  });
+// ✅ 7. CONNECT MONGODB SAFELY (non-blocking)
+mongoose.connect(process.env.MONGODB_URI, {
+  serverSelectionTimeoutMS: 5000
+})
+.then(() => {
+  console.log('✅ MongoDB connected');
+})
+.catch(err => {
+  console.error('❌ MongoDB error:', err);
+});
+
+
+// ✅ 8. GLOBAL ERROR HANDLERS (VERY IMPORTANT)
+process.on('uncaughtException', (err) => {
+  console.error('❌ Uncaught Exception:', err);
+});
+
+process.on('unhandledRejection', (err) => {
+  console.error('❌ Unhandled Rejection:', err);
+});
